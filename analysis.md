@@ -53,7 +53,7 @@ The upload takes about 5.3s using IE, so I have tried to recreate the same packe
 11 | S | ACK  | 
 
 ### POST /
-| | | | |
+| # | Sender | Flags | Notes |
 |-|-|-|-|
 12 | Client | SYN | See "Client SYN" below
 13 | S | SYN, ACK | See "Server SYN,ACK" below
@@ -73,7 +73,7 @@ The upload takes about 5.3s using IE, so I have tried to recreate the same packe
 31176 | S | ACK | Again with the "HTTP/1" padding, srsly?
 
 ### Client SYN
-| | |
+| Field | Value |
 |-|-|
 | ip.ttl | 127 |
 | tcp.window_size | 65535 |
@@ -85,7 +85,7 @@ The upload takes about 5.3s using IE, so I have tried to recreate the same packe
 | tcp.options[] | kind=sack permitted, len=2
 
 ### Server SYN,ACK
-| | |
+| Field | Value |
 |-|-|
 | ip.ttl | 250 |
 | tcp.window_size | 1024 |
