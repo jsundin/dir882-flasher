@@ -32,19 +32,20 @@ I have never written a TCP/IP stack before, and you might argue that I still hav
 # Usage
 I am assuming the router is called `192.168.0.1` and the client is called `192.168.0.2`. No sanity checks are performed, it will upload whatever to anything. Pretty much no error checking also. Yeah, not my best work.
 
-## Build
+## Setup
+### Build
 ```
 go build .
 ```
 Pro tip: do this *before* you unplug your router, as go will download a bunch of packages.
 
-## Become root
+### Become root
 Since we are doing some pretty low-level stuff here, root will be required.
 ```
 sudo bash
 ```
 
-## Block RST
+### Block RST
 As we are not actually opening a socket here (as far as the kernel is concerned) we have to block the kernel from sending `RST`'s. What happens is that the kernel is seeing replies from the router to ports that the kernel think is closed. The kernel then tries to tell the router (and us) to stop talking by sending `RST`.
 
 So let's stop all the `RST`'s for a while:
@@ -61,11 +62,16 @@ iptables -t filter -I OUTPUT -p tcp --sport 8000 --tcp-flags RST RST -j DROP
 ```
 Developer note: something funky is happening when talking to local VM's, and occasional RST's end up at the server side. The client doesn't see the RST's though, so everything just hangs. Do server on localhost, or a separate computer. It can probably be solved by installed the same rules on the server.
 
-## Set TTL
+### Set TTL
 I'm unsure if this is necessary, but O.G DIR-882 uses ttl=127, so let's.
+
+First, check what the default values are:
 ```
-sysctl -w net.ipv4.inet_peer_minttl=127
-sysctl -w net.ipv4.ip_default_ttl=127
+sysctl net.ipv4.inet_peer_minttl net.ipv4.ip_default_ttl
+```
+Take note of the values from the previous command, and set TTL to 127:
+```
+sysctl -w net.ipv4.inet_peer_minttl=127 net.ipv4.ip_default_ttl=127
 ```
 
 ## Flash
@@ -73,7 +79,14 @@ sysctl -w net.ipv4.ip_default_ttl=127
 ./dir882-flasher 192.168.0.2 192.168.0.1 /path/to/firmware.bin
 ```
 
-## Restore RST
+## Restore
+### Restore TTL
+```
+sysctl -w net.ipv4.inet_peer_minttl=whatever was there before
+sysctl -w net.ipv4.ip_default_ttl=whatever was there before
+```
+
+### Restore RST
 `RST`'s are actually great, so:
 ```
 iptables -D INPUT -p tcp --tcp-flags ALL RST,ACK -j DROP
