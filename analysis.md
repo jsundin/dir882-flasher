@@ -43,6 +43,18 @@ sysctl -w net.ipv4.inet_peer_minttl=127
 sysctl -w net.ipv4.ip_default_ttl=127
 ```
 
+## And the RST's
+Since we are not actually opening sockets (as far as the kernel is concerned) we need to block the kernel from sending RST's. What happens is that the kernel is seeing replies from the router to ports that the kernel think is closed, the kernel then tries to tell the router (and us) to stop talking by sending `RST`.
+
+The flash application can setup the iptables rules on it's own, but for the more hands-on approach the application can be started with `-no-iptables`, but the following rules needs to be set somehow:
+```
+iptables -I INPUT -p tcp --tcp-flags ALL RST,ACK -j DROP
+iptables -I INPUT -p tcp --tcp-flags ALL RST -j DROP
+iptables -I OUTPUT -p tcp --tcp-flags ALL RST,ACK -j DROP
+iptables -I OUTPUT -p tcp --tcp-flags ALL RST -j DROP
+```
+They can be reversed by simply changing the `-I` to a `-D`.
+
 ## Packets
 ### GET /
 | # | Sender | Flags | Notes |
