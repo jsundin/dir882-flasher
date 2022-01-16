@@ -1,7 +1,7 @@
 # dir882-flasher
 One problem with the D-Link DIR-882 is that you can only upload firmware using Internet Explorer. IE is going away, and I don't use windows anyway. Also, I tend to break my router every now and then, so being able to flash it is an important feature. So I gave this a "go". Just for the funs.
 
-This will only work with D-Link DIR-882. But it should work with any firmware compatible with that router. I have flashed DD-WRT successfully.
+This will only work with D-Link DIR-882. But it should work with any firmware compatible with that router. I have flashed DD-WRT and OpenWRT successfully.
 
 My packet analysis for the IE upload is available in [analysis.md](analysis.md).
 
@@ -62,29 +62,12 @@ iptables -t filter -I OUTPUT -p tcp --sport 8000 --tcp-flags RST RST -j DROP
 ```
 Developer note: something funky is happening when talking to local VM's, and occasional RST's end up at the server side. The client doesn't see the RST's though, so everything just hangs. Do server on localhost, or a separate computer. It can probably be solved by installed the same rules on the server.
 
-### Set TTL
-I'm unsure if this is necessary, but O.G DIR-882 uses ttl=127, so let's.
-
-First, check what the default values are:
-```
-sysctl net.ipv4.inet_peer_minttl net.ipv4.ip_default_ttl
-```
-Take note of the values from the previous command, and set TTL to 127:
-```
-sysctl -w net.ipv4.inet_peer_minttl=127 net.ipv4.ip_default_ttl=127
-```
-
 ## Flash
 ```
 ./dir882-flasher 192.168.0.2 192.168.0.1 /path/to/firmware.bin
 ```
 
 ## Restore
-### Restore TTL
-```
-sysctl -w net.ipv4.inet_peer_minttl=whatever was there before
-sysctl -w net.ipv4.ip_default_ttl=whatever was there before
-```
 
 ### Restore RST
 `RST`'s are actually great, so:

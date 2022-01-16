@@ -36,6 +36,13 @@ The upload takes about 5.3s using IE, so I have tried to recreate the same packe
 
 (I love the fact that the HTML pages actually have a `DOCTYPE` header, as if anyone involved with this router cared about standards. Kudos for not writing overly complicated JavaScript though.)
 
+## A quick note about TTL's
+Linux doesn't really seem to honour the ip.ttl field. The TTL doesn't seem to matter, but for future reference, here's how it can be hacked using sysctl's:
+```
+sysctl -w net.ipv4.inet_peer_minttl=127
+sysctl -w net.ipv4.ip_default_ttl=127
+```
+
 ## Packets
 ### GET /
 | # | Sender | Flags | Notes |
@@ -73,9 +80,9 @@ The upload takes about 5.3s using IE, so I have tried to recreate the same packe
 31176 | S | ACK | Again with the "HTTP/1" padding, srsly?
 
 ### Client SYN
-| Field | Value |
-|-|-|
-| ip.ttl | 127 |
+| Field | Value | Notes |
+|-|-|-|
+| ip.ttl | 127 | I don't think it matters
 | tcp.window_size | 65535 |
 | tcp.options[] | kind=mss, len=4, value=0x05b4 (1460)
 | tcp.options[] | kind=nop
